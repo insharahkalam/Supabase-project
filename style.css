@@ -1,0 +1,331 @@
+* {
+    margin: 0%;
+    padding: 0%;
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: "myFont";
+    src: url(./fonts/Valty\ DEMO.otf);
+}
+
+body {
+    font-family: "myFont";
+}
+
+.postInpt {
+    height: 420px;
+}
+
+
+.card {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    border: none;
+    box-shadow: 0px 0px 25px gray ;
+    
+}
+
+.body {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(rgb(61, 52, 2), black);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "myFont";
+}
+
+
+.container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+}
+
+.margin {
+    margin-top: 150px;
+}
+
+.left {
+    background-color: rgb(0, 0, 0);
+    border-top-left-radius: 20px;
+    color: rgb(152, 102, 2);
+    border-bottom-left-radius: 20px;
+    width: 100%;
+    height: 450px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border: 1px solid rgb(0, 0, 0);
+    padding-left: 20px;
+    padding-right: 20px;
+    box-shadow: 3px 2px 10px grey;
+}
+
+.right {
+    background-color: rgb(152, 102, 2) !important;
+    background: transparent;
+    box-shadow: 3px 2px 10px grey;
+    color: black;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    width: 100%;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solidrgb(152, 102, 2);
+    padding-left: 40px;
+    padding-right: 40px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.left2 {
+    background-color: rgb(0, 0, 0);
+    border-top-right-radius: 20px;
+    color: rgb(152, 102, 2);
+    border-bottom-right-radius: 20px;
+    width: 100%;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgb(0, 0, 0);
+    padding-left: 20px;
+    padding-right: 20px;
+    box-shadow: 3px 2px 10px grey;
+    /* font-size: 20px; */
+}
+
+.right2 {
+    background-color: rgb(152, 102, 2) !important;
+    background: transparent;
+    box-shadow: 3px 2px 10px grey;
+    color: black;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    width: 100%;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solidrgb(152, 102, 2);
+    padding-left: 40px;
+    padding-right: 40px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.btns {
+    display: flex;
+    gap: 5px;
+}
+
+.btn1 {
+    border-radius: 50%;
+    border: 1px solid grey;
+    margin: 0px;
+    padding: 0px;
+    width: 50px;
+    height: 50px;
+}
+
+.btn2 {
+    border-radius: 50%;
+    border: 1px solid grey;
+    margin: 0px;
+    padding: 0px;
+    width: 50px;
+    height: 50px;
+}
+
+.btn3 {
+    border-radius: 50%;
+    border: 1px solid grey;
+    margin: 0px;
+    padding: 0px;
+    width: 50px;
+    height: 50px;
+}
+
+.inp {
+    width: 280px;
+}
+
+.radio {
+    width: 25px;
+    margin-left: 15px;
+}
+
+.input {
+    width: 550px;
+    height: 50px;
+}
+
+input {
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid grey;
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.signin {
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid grey;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    background-color: rgb(152, 102, 2);
+    margin-left: 65px;
+}
+
+.signin:hover {
+    cursor: pointer;
+}
+
+.signin2 {
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid grey;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    background-color: rgb(0, 0, 0);
+    background: black;
+    box-shadow: 2px 2px 12px grey;
+}
+
+.signin2:hover {
+    cursor: pointer;
+}
+
+.signin3 {
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid grey;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+    background-color: rgb(152, 102, 2);
+}
+
+.signin3:hover {
+    cursor: pointer;
+}
+
+@keyframes l3 {
+    20% {
+        background-position: 0% 0%, 50% 50%, 100% 50%;
+    }
+
+    40% {
+        background-position: 0% 100%, 50% 0%, 100% 50%;
+    }
+
+    60% {
+        background-position: 0% 50%, 50% 100%, 100% 0%;
+    }
+
+    80% {
+        background-position: 0% 50%, 50% 50%, 100% 100%;
+    }
+}
+
+
+
+
+.eye {
+    position: relative;
+    bottom: 43px;
+    left: 120px;
+}
+
+.eye2 {
+    position: relative;
+    bottom: 42px;
+    left: 245px;
+}
+
+.swal2-input {
+    margin-left: 17px !important;
+    margin-bottom: 10px !important;
+}
+
+.swal2-popup,
+.swal2-modal,
+.swal2-show {
+    font-family: ui-sans-serif;
+    color: #f8f9fa !important;
+    background-color: black !important;
+    border: 1px solid #dc3545 !important;
+    border-radius: 35px !important;
+    box-shadow: 0px 0px 13px #f13434 !important;
+}
+
+.swal2-actions {
+    gap: 20px !important;
+}
+
+.swal2-confirm,
+.swal2-styled {
+    color: red;
+    display: inline-block;
+    background: transparent;
+    border: 1px solid red;
+}
+
+.swal2-cancel {
+    background-color: black;
+    display: inline-block;
+    color: red;
+}
+
+.hover:hover {
+    background: #efefef !important;
+}
+
+
+/* Media query */
+@media (max-width: 768px) {
+    .card {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media screen and (max-width: 769px) {
+
+    .mobile-login-btn,
+    .mobile-signup-btn {
+        display: block;
+        width: 100%;
+        margin-top: 15px;
+        background-color: black;
+        color: white;
+        font-weight: bold;
+        border-radius: 20px;
+        border: 1px solid grey;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .mobile-login-btn:hover,
+    .mobile-signup-btn:hover {
+        cursor: pointer;
+    }
+}
