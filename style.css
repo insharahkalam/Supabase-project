@@ -17,7 +17,6 @@ body {
     height: 420px;
 }
 
-
 .card {
     max-width: 100%;
     margin-left: auto;
@@ -26,11 +25,9 @@ body {
     box-shadow: 0px 0px 25px gray ;
 }
 
-/* .postpage{
-background-color: rgb(203, 203, 203);
+/* .dropdown-toggle{
+margin-top: 2px !important;
 } */
-
-
 
 .body {
     width: 100%;
@@ -251,9 +248,6 @@ input {
         background-position: 0% 50%, 50% 50%, 100% 100%;
     }
 }
-
-
-
 
 .eye {
     position: relative;
