@@ -148,9 +148,11 @@ submitBtn && submitBtn.addEventListener("click", async () => {
         selectedInp.checked = false
         window.location.href = "post.html"
     }
+    
 })
 
 //  ===========Fetch POST===========
+let color = undefined
 const contentDiv = document.getElementById("contentDiv")
 async function showAllPosts() {
     try {
@@ -160,20 +162,27 @@ async function showAllPosts() {
 
         if (error) {
             console.log(error, error.message);
-        }   
+        }
 
         contentDiv.innerHTML = ""
 
         data.forEach(allPost => {
 
             console.log(allPost);
+            if (allPost.Priority == 'high') {
+                color = 'green'
+            } else if (allPost.Priority == 'low') {
+                color = 'red'
+            } else {
+                color = 'orange'
+            }
             // const time = new Date(allPost.created_at).toLocaleString()
             contentDiv.innerHTML += ` 
         <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
         <li class="list-group-item fs-2">${allPost.Title}</li>
         <li class="list-group-item fs-5">${allPost.Description}</li>
-        <li class="list-group-item">${allPost.Priority}</li>
+        <li class="list-group-item  gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: ${color}; border: none; border-radius: 50%; "></div> ${allPost.Priority}</li>
        
         
         </ul>
@@ -219,7 +228,7 @@ highBtn && highBtn.addEventListener("click", async (e) => {
         <ul class="list-group list-group-flush">
         <li class="list-group-item fs-2">${high.Title}</li>
         <li class="list-group-item fs-5">${high.Description}</li>
-        <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: green; border: none; border-radius: 50%; "></div> ${high.Priority}</li>
+       <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: green; border: none; border-radius: 50%; "></div> ${high.Priority}</li>
         </ul>
         </div>`
     });
