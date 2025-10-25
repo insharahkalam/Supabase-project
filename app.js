@@ -169,10 +169,10 @@ async function showAllPosts() {
             console.log(allPost);
             // const time = new Date(allPost.created_at).toLocaleString()
             contentDiv.innerHTML += ` 
-        <div class="card" style="width: 18rem;">
+        <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
-        <li class="list-group-item">${allPost.Title}</li>
-        <li class="list-group-item">${allPost.Description}</li>
+        <li class="list-group-item fs-2">${allPost.Title}</li>
+        <li class="list-group-item fs-5">${allPost.Description}</li>
         <li class="list-group-item">${allPost.Priority}</li>
        
         
@@ -215,10 +215,10 @@ highBtn && highBtn.addEventListener("click", async (e) => {
     data.forEach(high => {
         console.log(high);
         contentDiv.innerHTML += ` 
-        <div class="card" style="width: 18rem;">
+      <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
-        <li class="list-group-item">${high.Title}</li>
-        <li class="list-group-item">${high.Description}</li>
+        <li class="list-group-item fs-2">${high.Title}</li>
+        <li class="list-group-item fs-5">${high.Description}</li>
         <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: green; border: none; border-radius: 50%; "></div> ${high.Priority}</li>
         </ul>
         </div>`
@@ -247,10 +247,10 @@ medBtn && medBtn.addEventListener("click", async (e) => {
     data.forEach(medium => {
         console.log(medium);
         contentDiv.innerHTML += ` 
-        <div class="card" style="width: 18rem;">
+       <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
-        <li class="list-group-item">${medium.Title}</li>
-        <li class="list-group-item">${medium.Description}</li>
+        <li class="list-group-item fs-2">${medium.Title}</li>
+        <li class="list-group-item fs-4">${medium.Description}</li>
         <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: orange; border: none; border-radius: 50%; "></div> ${medium.Priority}</li>
         </ul>
         </div>`
@@ -280,10 +280,10 @@ lowBtn && lowBtn.addEventListener("click", async (e) => {
     data.forEach(low => {
         console.log(low);
         contentDiv.innerHTML += ` 
-        <div class="card" style="width: 18rem;">
+      <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
-        <li class="list-group-item">${low.Title}</li>
-        <li class="list-group-item">${low.Description}</li>
+        <li class="list-group-item fs-2">${low.Title}</li>
+        <li class="list-group-item fs-4">${low.Description}</li>
         <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: red; border: none; border-radius: 50%; "></div> ${low.Priority}</li>
         </ul>
         </div>`
