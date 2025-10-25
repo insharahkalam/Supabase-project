@@ -12,31 +12,31 @@ const username = document.getElementById("username")
 const email = document.getElementById("email")
 const password = document.getElementById("password")
 const btn = document.getElementById("btn")
-
 btn && btn.addEventListener("click", async () => {
-
     try {
-        if (!username || !email || !password) {
+        if (!username.value || !email.value || !password.value) {
             alert("Plaease enter All Fields!")
-        }
-        const { data, error } = await client.auth.signUp({
-            email: email.value,
-            password: password.value,
-            options: {
-                data: {
-                    username: username.value
-                }
-            }
-        })
+        } else {
 
-        if (error) {
-            alert("signup failed!")
-            console.log(error.message);
-        }
-        else {
-            console.log(data);
-            alert("redirect to login page...")
-            window.location.href = "login.html"
+            const { data, error } = await client.auth.signUp({
+                email: email.value,
+                password: password.value,
+                options: {
+                    data: {
+                        username: username.value
+                    }
+                }
+            })
+
+            if (error.message == "Password should be at least 6 characters.") {
+                alert("Password should be at least 6 characters.")
+                console.log(error, error.message);
+            }
+            else {
+                console.log(data);
+                alert("redirect to login page...")
+                window.location.href = "login.html"
+            }
         }
     } catch (error) {
         console.log(error);
@@ -53,7 +53,7 @@ const loginBtn = document.getElementById("loginBtn")
 loginBtn && loginBtn.addEventListener("click", async () => {
 
     try {
-        if (!loginEmail || !loginPassword) {
+        if (!loginEmail.value || !loginPassword.value) {
             alert("Plaease enter All Fields!")
         }
         const { data, error } = await client.auth.signInWithPassword({
@@ -78,14 +78,16 @@ loginBtn && loginBtn.addEventListener("click", async () => {
 // ===============GET USER DATA============
 
 async function getUserData() {
-
-    const showUserName = document.getElementById("showUserName")
-    const { data, error } = await client.auth.getUser()
-    console.log(data, "user data");
-    showUserName.innerHTML = data.user.user_metadata.username
-    if (error) {
-        console.log(error, error.message);
-
+    try {
+        const showUserName = document.getElementById("showUserName")
+        const { data, error } = await client.auth.getUser()
+        console.log(data, "user data");
+        showUserName.innerHTML = data.user.user_metadata.username
+        if (error) {
+            console.log(error, "GEtting user error", error.message);
+        }
+    } catch (error) {
+        console.log(error, "Error in getting user", error.message)
     }
 }
 
@@ -93,9 +95,7 @@ getUserData()
 
 // ==========LOGOUT WORK============
 
-
 const logoutBtn = document.getElementById("logoutBtn")
-
 logoutBtn && logoutBtn.addEventListener("click", async () => {
     const { error } = await client.auth.signOut()
     if (error) {
@@ -108,7 +108,6 @@ logoutBtn && logoutBtn.addEventListener("click", async () => {
 
 
 // ========CREATE POSTWORK===========
-
 
 const showStatus = document.getElementsByName("showStatus")
 const title = document.getElementById("title")
@@ -148,7 +147,7 @@ submitBtn && submitBtn.addEventListener("click", async () => {
         selectedInp.checked = false
         window.location.href = "post.html"
     }
-    
+
 })
 
 //  ===========Fetch POST===========
@@ -167,8 +166,8 @@ async function showAllPosts() {
         contentDiv.innerHTML = ""
 
         data.forEach(allPost => {
-
             console.log(allPost);
+
             if (allPost.Priority == 'high') {
                 color = 'green'
             } else if (allPost.Priority == 'low') {
@@ -178,19 +177,20 @@ async function showAllPosts() {
             }
             // const time = new Date(allPost.created_at).toLocaleString()
             contentDiv.innerHTML += ` 
-        <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
+        <div id="post-${allPost.id}" class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
-        <li class="list-group-item fs-2">${allPost.Title}</li>
-        <li class="list-group-item fs-5">${allPost.Description}</li>
-        <li class="list-group-item  gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: ${color}; border: none; border-radius: 50%; "></div> ${allPost.Priority}</li>
-       
-        
+        <li class="list-group-item fs-2 post-title">${allPost.Title}</li>
+        <li class="list-group-item fs-5 post-description">${allPost.Description}</li>
+        <li class="list-group-item  gap-2 align-items-center d-flex post-priority"><div style="width: 20px; height: 20px; background-color: ${color}; border: none; border-radius: 50%; "></div> ${allPost.Priority}</li>    
         </ul>
+        <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5" onClick="editPost(${allPost.id},'${allPost.Title}','${allPost.Description}', '${allPost.Priority}')">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5" onClick="deletePost(${allPost.id})">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
+        </div>
         </div>`
         });
     } catch (error) {
         console.log(error, error.message);
-
     }
 }
 
@@ -230,6 +230,10 @@ highBtn && highBtn.addEventListener("click", async (e) => {
         <li class="list-group-item fs-5">${high.Description}</li>
        <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: green; border: none; border-radius: 50%; "></div> ${high.Priority}</li>
         </ul>
+         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
+        </div>
         </div>`
     });
 
@@ -262,6 +266,10 @@ medBtn && medBtn.addEventListener("click", async (e) => {
         <li class="list-group-item fs-4">${medium.Description}</li>
         <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: orange; border: none; border-radius: 50%; "></div> ${medium.Priority}</li>
         </ul>
+         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
+        </div>
         </div>`
     });
 
@@ -295,7 +303,78 @@ lowBtn && lowBtn.addEventListener("click", async (e) => {
         <li class="list-group-item fs-4">${low.Description}</li>
         <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: red; border: none; border-radius: 50%; "></div> ${low.Priority}</li>
         </ul>
+         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
+        </div>
         </div>`
     });
 
 })
+
+// =============EDIT POST FUNCTION=============
+
+async function editPost(id, title, description, priority) {
+    console.log(title, description, priority);
+    let editTitle = prompt("EDIT YOUR TITLE:", title)
+    title = editTitle;
+
+    let editDescription = prompt("EDIT YOUR Description:", description)
+    description = editDescription;
+
+    let editPriority = prompt("EDIT YOUR priority:", priority)
+    priority = editPriority
+
+    const { error } = await client
+        .from('user-posts')
+        .update({
+            Title: editTitle,
+            Description: editDescription,
+            Priority: editPriority
+        })
+        .eq("id", id)
+
+
+    if (error) {
+        console.log(error.message, "update Error");
+        return;
+    }
+    alert("update SUCCESSFULLY")
+
+    let postcard = document.getElementById(`post-${id}`)
+    if (postcard) {
+        postcard.querySelector(".post-title").textContent = editTitle;
+        postcard.querySelector(".post-description").textContent = editDescription;
+        postcard.querySelector(".post-priority").textContent = editPriority;
+    }
+}
+
+
+
+// ===========DELETE POST FUNCTION=========
+
+
+async function deletePost(id) {
+    console.log(id);
+
+    if(!confirm("Are you want to delete this post??")) return;
+
+    const response = await client
+        .from('user-posts')
+        .delete()
+        .eq('id', id
+        )
+    if (response) {
+        console.log("delete response", response);
+        alert("post delete SuccessFully")
+
+        let postcard = document.getElementById(`post-${id}`)
+        if (postcard) {
+            postcard.remove()
+        }
+
+    }
+
+
+
+}
