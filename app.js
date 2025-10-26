@@ -34,8 +34,22 @@ btn && btn.addEventListener("click", async () => {
             }
             else {
                 console.log(data);
-                alert("redirect to login page...")
-                window.location.href = "login.html"
+                // alert("redirect to login page...")
+
+
+                Swal.fire({
+                    title: "Successfully Signup!\n Redirecting to Login Page",
+                    icon: "success",
+                    draggable: true,
+                    timer: 2000
+                });
+
+
+                setTimeout(() => {
+
+                    window.location.href = "login.html"
+                }, 2000)
+
             }
         }
     } catch (error) {
@@ -357,7 +371,7 @@ async function editPost(id, title, description, priority) {
 async function deletePost(id) {
     console.log(id);
 
-    if(!confirm("Are you want to delete this post??")) return;
+    if (!confirm("Are you want to delete this post??")) return;
 
     const response = await client
         .from('user-posts')
