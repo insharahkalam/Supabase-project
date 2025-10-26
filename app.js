@@ -11,10 +11,11 @@ console.log(client);
 const username = document.getElementById("username")
 const email = document.getElementById("email")
 const password = document.getElementById("password")
+const phoneNo = document.getElementById("phoneNo")
 const btn = document.getElementById("btn")
 btn && btn.addEventListener("click", async () => {
     try {
-        if (!username.value || !email.value || !password.value) {
+        if (!username.value || !email.value || !password.value || !phoneNo.value) {
             alert("Plaease enter All Fields!")
         } else {
 
@@ -23,19 +24,30 @@ btn && btn.addEventListener("click", async () => {
                 password: password.value,
                 options: {
                     data: {
-                        username: username.value
+                        username: username.value,
+                        phoneNo: phoneNo.value
                     }
                 }
             })
 
-            if (error.message == "Password should be at least 6 characters.") {
-                alert("Password should be at least 6 characters.")
-                console.log(error, error.message);
-            }
-            else {
-                console.log(data);
-                // alert("redirect to login page...")
+            if (data) {
+                console.log(data.user.user_metadata);
+                userinfo = data.user.user_metadata
+                let { username, email, phoneNo } = userinfo
 
+                const { error } = await client
+                    .from('users-data')
+                    .insert({ name: username, email: email, phoneNo: phoneNo })
+
+                if (error) {
+                    console.log("USER DATA ERROR", error);
+                }else{
+                    alert("DATA INSERT SUCCESSFULLY")
+                }
+            }
+
+            if(data) {
+                console.log(data);
 
                 Swal.fire({
                     title: "Successfully Signup!\n Redirecting to Login Page",
@@ -44,12 +56,14 @@ btn && btn.addEventListener("click", async () => {
                     timer: 2000
                 });
 
+                // setTimeout(() => {
 
-                setTimeout(() => {
-
-                    window.location.href = "login.html"
-                }, 2000)
-
+                //     window.location.href = "login.html"
+                // }, 2000)
+            }
+            else{
+                console.log(error,error.message);
+                
             }
         }
     } catch (error) {
@@ -82,7 +96,23 @@ loginBtn && loginBtn.addEventListener("click", async () => {
         else {
             console.log(data);
             alert("redirect to Home page...")
-            window.location.href = "createPost.html"
+
+
+            Swal.fire({
+                title: "Successfully Loged in!\n Redirecting to post Page",
+                icon: "success",
+                draggable: true,
+                timer: 2000
+            });
+
+
+            setTimeout(() => {
+
+                window.location.href = "createPost.html"
+            }, 2000)
+
+
+
         }
     } catch (error) {
         console.log(error);
@@ -191,11 +221,11 @@ async function showAllPosts() {
             }
             // const time = new Date(allPost.created_at).toLocaleString()
             contentDiv.innerHTML += ` 
-        <div id="post-${allPost.id}" class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
+        <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
-        <li class="list-group-item fs-2 post-title">${allPost.Title}</li>
-        <li class="list-group-item fs-5 post-description">${allPost.Description}</li>
-        <li class="list-group-item  gap-2 align-items-center d-flex post-priority"><div style="width: 20px; height: 20px; background-color: ${color}; border: none; border-radius: 50%; "></div> ${allPost.Priority}</li>    
+        <li class="list-group-item fs-2">${allPost.Title}</li>
+        <li class="list-group-item fs-5">${allPost.Description}</li>
+        <li class="list-group-item  gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: ${color}; border: none; border-radius: 50%; "></div> ${allPost.Priority}</li>    
         </ul>
         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
         <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5" onClick="editPost(${allPost.id},'${allPost.Title}','${allPost.Description}', '${allPost.Priority}')">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
@@ -347,7 +377,7 @@ async function editPost(id, title, description, priority) {
             Priority: editPriority
         })
         .eq("id", id)
-
+    showAllPosts()
 
     if (error) {
         console.log(error.message, "update Error");
@@ -355,12 +385,7 @@ async function editPost(id, title, description, priority) {
     }
     alert("update SUCCESSFULLY")
 
-    let postcard = document.getElementById(`post-${id}`)
-    if (postcard) {
-        postcard.querySelector(".post-title").textContent = editTitle;
-        postcard.querySelector(".post-description").textContent = editDescription;
-        postcard.querySelector(".post-priority").textContent = editPriority;
-    }
+
 }
 
 
@@ -382,13 +407,11 @@ async function deletePost(id) {
         console.log("delete response", response);
         alert("post delete SuccessFully")
 
-        let postcard = document.getElementById(`post-${id}`)
-        if (postcard) {
-            postcard.remove()
-        }
+        showAllPosts()
 
     }
 
 
 
 }
+
