@@ -58,7 +58,7 @@ btn && btn.addEventListener("click", async () => {
 
                 // setTimeout(() => {
 
-                //     window.location.href = "login.html"
+                    window.location.href = "login.html"
                 // }, 2000)
             }
             else{
