@@ -41,12 +41,12 @@ btn && btn.addEventListener("click", async () => {
 
                 if (error) {
                     console.log("USER DATA ERROR", error);
-                }else{
+                } else {
                     alert("DATA INSERT SUCCESSFULLY")
                 }
             }
 
-            if(data) {
+            if (data) {
                 console.log(data);
 
                 Swal.fire({
@@ -58,12 +58,12 @@ btn && btn.addEventListener("click", async () => {
 
                 // setTimeout(() => {
 
-                    window.location.href = "login.html"
+                window.location.href = "login.html"
                 // }, 2000)
             }
-            else{
-                console.log(error,error.message);
-                
+            else {
+                console.log(error, error.message);
+
             }
         }
     } catch (error) {
@@ -110,8 +110,6 @@ loginBtn && loginBtn.addEventListener("click", async () => {
 
                 window.location.href = "createPost.html"
             }, 2000)
-
-
 
         }
     } catch (error) {
@@ -344,6 +342,7 @@ lowBtn && lowBtn.addEventListener("click", async (e) => {
       <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
         <li class="list-group-item fs-2">${low.Title}</li>
+        
         <li class="list-group-item fs-4">${low.Description}</li>
         <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: red; border: none; border-radius: 50%; "></div> ${low.Priority}</li>
         </ul>
@@ -415,3 +414,36 @@ async function deletePost(id) {
 
 }
 
+
+
+// =============STORAGE=============
+
+const imgFile = document.getElementById("imgFile")
+const uploadBtn = document.getElementById("uploadBtn")
+const imgg = document.getElementById("imgg")
+
+uploadBtn && uploadBtn.addEventListener("click", async () => {
+    let file = imgFile.files[0]
+
+    fileName = `${Date.now()}_${file.name}`
+    console.log(fileName);
+
+    const { data, error } = await client
+        .storage
+        .from('profiles')
+        .upload(fileName, file)
+    if (error) {
+        console.log(error, "upload img errror");
+    } else {
+        alert("img uploaded !")
+    }
+
+    const { data: getPublicUrlData } = client
+        .storage
+        .from('profiles')
+        .getPublicUrl(fileName)
+    if (data) {
+        console.log(getPublicUrlData, "successfull..........");
+        imgg.src = getPublicUrlData.publicUrl;
+    }
+})
