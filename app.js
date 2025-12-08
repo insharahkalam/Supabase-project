@@ -217,12 +217,18 @@ async function showAllPosts() {
             } else {
                 color = 'orange'
             }
-            // const time = new Date(allPost.created_at).toLocaleString()
+
+            const time = new Date(allPost.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
+            });
             contentDiv.innerHTML += ` 
         <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
         <ul class="list-group list-group-flush">
         <li class="list-group-item fs-2">${allPost.Title}</li>
         <li class="list-group-item fs-5">${allPost.Description}</li>
+        <li class="list-group-item fs-5">${time}</li>
         <li class="list-group-item  gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: ${color}; border: none; border-radius: 50%; "></div> ${allPost.Priority}</li>    
         </ul>
         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
@@ -442,7 +448,7 @@ uploadBtn && uploadBtn.addEventListener("click", async () => {
         .storage
         .from('profiles')
         .getPublicUrl(fileName)
-    if (data) {
+    if (getPublicUrlData) {
         console.log(getPublicUrlData, "successfull..........");
         imgg.src = getPublicUrlData.publicUrl;
     }
