@@ -11,64 +11,88 @@ console.log(client);
 const username = document.getElementById("username")
 const email = document.getElementById("email")
 const password = document.getElementById("password")
-const phoneNo = document.getElementById("phoneNo")
+const profile_pic = document.getElementById("profile_pic")
 const btn = document.getElementById("btn")
 btn && btn.addEventListener("click", async () => {
     try {
-        if (!username.value || !email.value || !password.value || !phoneNo.value) {
-            alert("Plaease enter All Fields!")
+        let insertImg = profile_pic.files[0]
+        let insertImgName = `${Date.now()}_${insertImg.name}`
+    
+        if (!username.value || !email.value || !password.value || !insertImg) {
+        alert("Plaease enter All Fields!")
+    } else {
+
+        const { data, error } = await client.auth.signUp({
+            email: email.value,
+            password: password.value,
+            options: {
+                data: {
+                    username: username.value,
+                }
+            }
+        })
+
+        const { data: uploadProfileData, error: uploadProfile } = await client
+            .storage
+            .from('profiles')
+            .upload(insertImgName, insertImg)
+
+        if (uploadProfile) {
+            console.log("profile UploadError", uploadProfile.message);
         } else {
+            console.log(uploadProfileData, "insert Successfully!");
 
-            const { data, error } = await client.auth.signUp({
-                email: email.value,
-                password: password.value,
-                options: {
-                    data: {
-                        username: username.value,
-                        phoneNo: phoneNo.value
-                    }
-                }
-            })
+            const { data: pblicUrl } = client
+                .storage
+                .from('profiles')
+                .getPublicUrl(insertImgName)
 
-            if (data) {
-                console.log(data.user.user_metadata);
-                userinfo = data.user.user_metadata
-                let { username, email, phoneNo } = userinfo
-
-                const { error } = await client
-                    .from('users-data')
-                    .insert({ name: username, email: email, phoneNo: phoneNo })
-
-                if (error) {
-                    console.log("USER DATA ERROR", error);
-                } else {
-                    alert("DATA INSERT SUCCESSFULLY")
-                }
+            if (pblicUrl) {
+                console.log("public url data", pblicUrl);
+                window.publicImgUrll = pblicUrl.publicUrl
             }
 
-            if (data) {
-                console.log(data);
+        }
 
-                Swal.fire({
-                    title: "Successfully Signup!\n Redirecting to Login Page",
-                    icon: "success",
-                    draggable: true,
-                    timer: 2000
-                });
+        if (data) {
+            console.log(data.user.user_metadata);
+            userinfo = data.user.user_metadata
+            let { username, email } = userinfo
 
-                // setTimeout(() => {
+            const { error } = await client
+                .from('users-data')
+                .insert({ name: username, email: email, profile_pic: publicImgUrll })
 
-                window.location.href = "login.html"
-                // }, 2000)
-            }
-            else {
-                console.log(error, error.message);
-
+            if (error) {
+                console.log("USER DATA ERROR", error);
+            } else {
+                alert("DATA INSERT SUCCESSFULLY")
             }
         }
-    } catch (error) {
-        console.log(error);
+
+        if (data) {
+            console.log(data);
+
+            Swal.fire({
+                title: "Successfully Signup!\n Redirecting to Login Page",
+                icon: "success",
+                draggable: true,
+                timer: 2000
+            });
+
+            // setTimeout(() => {
+
+            window.location.href = "login.html"
+            // }, 2000)
+        }
+        else {
+            console.log(error, error.message);
+
+        }
     }
+} catch (error) {
+    console.log(error);
+}
 })
 
 
@@ -171,13 +195,16 @@ submitBtn && submitBtn.addEventListener("click", async () => {
         alert("Please Enter All Feilds!")
         return;
     }
+    const { data: getUserData, error: getUserError } = await client.auth.getUser()
+    console.log(getUserData);
 
     const { error } = await client
         .from('user-posts')
         .insert({
             Title: title.value,
             Description: description.value,
-            Priority: selectedInp.value
+            Priority: selectedInp.value,
+            email: getUserData.user.email
         })
 
     if (error) {
@@ -197,9 +224,24 @@ let color = undefined
 const contentDiv = document.getElementById("contentDiv")
 async function showAllPosts() {
     try {
-        const { data, error } = await client
+        const { data: posts, error } = await client
             .from('user-posts')
             .select("*")
+
+        const { data: users, error: userError } = await client
+            .from('users-data')
+            .select("*")
+
+        const mergedData = posts.map(post => {
+            const user = users.find(u => u.email === post.email);
+
+            return {
+                ...post,
+                userName: user?.name,
+                userPic: user?.profile_pic
+            };
+        });
+
 
         if (error) {
             console.log(error, error.message);
@@ -207,35 +249,72 @@ async function showAllPosts() {
 
         contentDiv.innerHTML = ""
 
-        data.forEach(allPost => {
-            console.log(allPost);
 
-            if (allPost.Priority == 'high') {
+        mergedData.forEach(post => {
+            console.log(post);
+
+            if (post.Priority == 'high') {
                 color = 'green'
-            } else if (allPost.Priority == 'low') {
+            } else if (post.Priority == 'low') {
                 color = 'red'
             } else {
                 color = 'orange'
             }
 
-            const time = new Date(allPost.created_at).toLocaleTimeString([], {
+            const time = new Date(post.created_at).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true
             });
             contentDiv.innerHTML += ` 
-        <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
-        <ul class="list-group list-group-flush">
-        <li class="list-group-item fs-2">${allPost.Title}</li>
-        <li class="list-group-item fs-5">${allPost.Description}</li>
-        <li class="list-group-item fs-5">${time}</li>
-        <li class="list-group-item  gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: ${color}; border: none; border-radius: 50%; "></div> ${allPost.Priority}</li>    
-        </ul>
-        <div class="d-flex gap-2 justify-content-start ms-3 my-2">
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5" onClick="editPost(${allPost.id},'${allPost.Title}','${allPost.Description}', '${allPost.Priority}')">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5" onClick="deletePost(${allPost.id})">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
+       <div class="border-info p-2" 
+     style="width: 24rem; border:3px solid cyan; border-radius:30px; 
+            box-shadow: 0px 0px 15px rgb(196, 249, 255)">
+
+    <!-- TOP PROFILE ROW -->
+    <div class="d-flex align-items-center gap-3 p-2">
+        <img src="${post.userPic}" 
+             alt="profile" 
+             style="width:50px; height:50px; border-radius:50%; box-shadow:0px 0px 2px gray; object-fit:cover;">
+
+        <div>
+            <p class="m-0 fw-bold fs-5">${post.userName}</p>
+            <p class="m-0 text-secondary" style="font-size: 14px;">${time}</p>
         </div>
-        </div>`
+    </div>
+
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item fs-2">${post.Title}</li>
+        <li class="list-group-item fs-5">${post.Description}</li>
+
+        <li class="list-group-item fs-5 d-flex align-items-center gap-2">
+            <div style="width: 20px; height: 20px; background-color: ${color}; border-radius: 50%;"></div>
+            ${post.Priority}
+        </li>
+    </ul>
+
+    <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="editPost(${post.id},'${post.Title}','${post.Description}', '${post.Priority}')">
+            Edit 
+            <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i>
+        </button>
+
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="deletePost(${post.id})">
+            Delete 
+            <i class="fa-solid fa-trash fa-xs"></i>
+        </button>
+    </div>
+
+</div>
+
+        
+        `
+
+
         });
     } catch (error) {
         console.log(error, error.message);

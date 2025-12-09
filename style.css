@@ -244,17 +244,6 @@ input {
     }
 }
 
-.eye {
-    position: relative;
-    bottom: 40px;
-    left: 130px;
-}
-
-.eye2 {
-    position: relative;
-    bottom: 40px;
-    left: 280px;
-}
 
 .swal2-input {
     margin-left: 17px !important;
