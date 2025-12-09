@@ -17,82 +17,83 @@ btn && btn.addEventListener("click", async () => {
     try {
         let insertImg = profile_pic.files[0]
         let insertImgName = `${Date.now()}_${insertImg.name}`
-    
+
         if (!username.value || !email.value || !password.value || !insertImg) {
-        alert("Plaease enter All Fields!")
-    } else {
-
-        const { data, error } = await client.auth.signUp({
-            email: email.value,
-            password: password.value,
-            options: {
-                data: {
-                    username: username.value,
-                }
-            }
-        })
-
-        const { data: uploadProfileData, error: uploadProfile } = await client
-            .storage
-            .from('profiles')
-            .upload(insertImgName, insertImg)
-
-        if (uploadProfile) {
-            console.log("profile UploadError", uploadProfile.message);
+            alert("Plaease enter All Fields!")
         } else {
-            console.log(uploadProfileData, "insert Successfully!");
 
-            const { data: pblicUrl } = client
+            const { data, error } = await client.auth.signUp({
+                email: email.value,
+                password: password.value,
+                options: {
+                    data: {
+                        username: username.value,
+                    }
+                }
+            })
+
+            const { data: uploadProfileData, error: uploadProfile } = await client
                 .storage
                 .from('profiles')
-                .getPublicUrl(insertImgName)
-
-            if (pblicUrl) {
-                console.log("public url data", pblicUrl);
-                window.publicImgUrll = pblicUrl.publicUrl
-            }
-
-        }
-
-        if (data) {
-            console.log(data.user.user_metadata);
-            userinfo = data.user.user_metadata
-            let { username, email } = userinfo
-
-            const { error } = await client
-                .from('users-data')
-                .insert({ name: username, email: email, profile_pic: publicImgUrll })
-
-            if (error) {
-                console.log("USER DATA ERROR", error);
+                .upload(insertImgName, insertImg,{
+                    upsert: true
+                })
+            if (uploadProfile) {
+                console.log("profile UploadError", uploadProfile.message);
             } else {
-                alert("DATA INSERT SUCCESSFULLY")
+                console.log(uploadProfileData, "insert Successfully!");
+
+                const { data: pblicUrl } = client
+                    .storage
+                    .from('profiles')
+                    .getPublicUrl(insertImgName)
+
+                if (pblicUrl) {
+                    console.log("public url data", pblicUrl);
+                    window.publicImgUrll = pblicUrl.publicUrl
+                }
+
+            }
+
+            if (data) {
+                console.log(data.user.user_metadata);
+                userinfo = data.user.user_metadata
+                let { username, email } = userinfo
+
+                const { error } = await client
+                    .from('users-data')
+                    .insert({ name: username, email: email, profile_pic: publicImgUrll })
+
+                if (error) {
+                    console.log("USER DATA ERROR", error);
+                } else {
+                    alert("DATA INSERT SUCCESSFULLY")
+                }
+            }
+
+            if (data) {
+                console.log(data);
+
+                Swal.fire({
+                    title: "Successfully Signup!\n Redirecting to Login Page",
+                    icon: "success",
+                    draggable: true,
+                    timer: 2000
+                });
+
+                // setTimeout(() => {
+
+                window.location.href = "login.html"
+                // }, 2000)
+            }
+            else {
+                console.log(error, error.message);
+
             }
         }
-
-        if (data) {
-            console.log(data);
-
-            Swal.fire({
-                title: "Successfully Signup!\n Redirecting to Login Page",
-                icon: "success",
-                draggable: true,
-                timer: 2000
-            });
-
-            // setTimeout(() => {
-
-            window.location.href = "login.html"
-            // }, 2000)
-        }
-        else {
-            console.log(error, error.message);
-
-        }
+    } catch (error) {
+        console.log(error);
     }
-} catch (error) {
-    console.log(error);
-}
 })
 
 
