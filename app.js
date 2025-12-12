@@ -35,7 +35,7 @@ btn && btn.addEventListener("click", async () => {
             const { data: uploadProfileData, error: uploadProfile } = await client
                 .storage
                 .from('profiles')
-                .upload(insertImgName, insertImg,{
+                .upload(insertImgName, insertImg, {
                     upsert: true
                 })
             if (uploadProfile) {
@@ -67,7 +67,9 @@ btn && btn.addEventListener("click", async () => {
                 if (error) {
                     console.log("USER DATA ERROR", error);
                 } else {
-                    alert("DATA INSERT SUCCESSFULLY")
+                    // alert("DATA INSERT SUCCESSFULLY")
+                    console.log("DATA INSERT SUCCESSFULLY");
+
                 }
             }
 
@@ -120,8 +122,7 @@ loginBtn && loginBtn.addEventListener("click", async () => {
         }
         else {
             console.log(data);
-            alert("redirect to Home page...")
-
+            // alert("redirect to Home page...")
 
             Swal.fire({
                 title: "Successfully Loged in!\n Redirecting to post Page",
@@ -168,7 +169,14 @@ logoutBtn && logoutBtn.addEventListener("click", async () => {
     if (error) {
         console.log(error, error.message);
     } else {
-        alert("Logout Successfully")
+        // alert("Logout Successfully")
+        Swal.fire({
+            title: "Logout Successfully!",
+            icon: "success",
+            draggable: true,
+            timer: 2000
+        });
+
         window.location.href = "login.html"
     }
 })
@@ -211,7 +219,13 @@ submitBtn && submitBtn.addEventListener("click", async () => {
     if (error) {
         console.log(error, error.message);
     } else {
-        alert("DATA INSERT SUCCESSFULLY!!")
+        // alert("DATA INSERT SUCCESSFULLY!!")
+        Swal.fire({
+            title: "Post Added Successfully!",
+            icon: "success",
+            draggable: true,
+            timer: 2000
+        });
         title.value = ""
         description.value = ""
         selectedInp.checked = false
@@ -268,7 +282,7 @@ async function showAllPosts() {
                 hour12: true
             });
             contentDiv.innerHTML += ` 
-       <div class="border-info p-2" 
+       <div class="border-info p-2 zoom-card" 
      style="width: 24rem; border:3px solid cyan; border-radius:30px; 
             box-shadow: 0px 0px 15px rgb(196, 249, 255)">
 
@@ -314,8 +328,6 @@ async function showAllPosts() {
 
         
         `
-
-
         });
     } catch (error) {
         console.log(error, error.message);
@@ -334,112 +346,254 @@ allPost && allPost.addEventListener("click", async () => {
 
 // ========high Work=======
 
-const highBtn = document.getElementById("highBtn")
+const highBtn = document.getElementById("highBtn");
 
 highBtn && highBtn.addEventListener("click", async (e) => {
-    e.preventDefault()
-    const { data, error } = await client
+    e.preventDefault();
+
+    const { data: highPost, error } = await client
         .from('user-posts')
         .select("*")
-        .eq("Priority", "high")
+        .eq("Priority", "high");
 
     if (error) {
-        console.log(error, error.message);
+        console.log("Error fetching high posts:", error.message);
+        return;
     }
 
-    contentDiv.innerHTML = ""
+    const { data: highUsers, error: highUserError } = await client
+        .from('users-data')
+        .select("*");
 
-    data.forEach(high => {
-        console.log(high);
-        contentDiv.innerHTML += ` 
-      <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
-        <ul class="list-group list-group-flush">
-        <li class="list-group-item fs-2">${high.Title}</li>
-        <li class="list-group-item fs-5">${high.Description}</li>
-       <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: green; border: none; border-radius: 50%; "></div> ${high.Priority}</li>
-        </ul>
-         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
-        </div>
-        </div>`
+    if (highUserError) {
+        console.log("Error fetching users:", highUserError.message);
+        return;
+    }
+
+    const mergedDatahigh = highPost.map(hPost => {
+        const user = highUsers.find(u => u.email === hPost.email);
+        return {
+            ...hPost,
+            userName: user?.name,
+            userPic: user?.profile_pic
+        };
     });
 
-})
+    contentDiv.innerHTML = "";
+
+    mergedDatahigh.forEach(high => {
+        const time = new Date(high.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+
+        contentDiv.innerHTML += ` 
+        <div class="border-info p-2 zoom-card" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px rgb(196, 249, 255)">
+            <!-- TOP PROFILE ROW -->
+            <div class="d-flex align-items-center gap-3 p-2">
+                <img src="${high.userPic}" alt="profile" style="width:50px; height:50px; border-radius:50%; box-shadow:0px 0px 2px gray; object-fit:cover;">
+                <div>
+                    <p class="m-0 fw-bold fs-5">${high.userName}</p>
+                    <p class="m-0 text-secondary" style="font-size: 14px;">${time}</p>
+                </div>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item fs-2">${high.Title}</li>
+                <li class="list-group-item fs-5">${high.Description}</li>
+                <li class="list-group-item gap-2 align-items-center d-flex">
+                    <div style="width: 20px; height: 20px; background-color: green; border-radius: 50%;"></div> ${high.Priority}
+                </li>
+            </ul>
+            <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+               <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="editPost(${high.id},'${high.Title}','${high.Description}', '${high.Priority}')">
+            Edit 
+            <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i>
+        </button>
+
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="deletePost(${high.id})">
+            Delete 
+            <i class="fa-solid fa-trash fa-xs"></i>
+        </button>
+            </div>
+        </div>`;
+    });
+});
+
 
 // =============MEDIUM WORK============
 
-
-const medBtn = document.getElementById("medBtn")
+const medBtn = document.getElementById("medBtn");
 
 medBtn && medBtn.addEventListener("click", async (e) => {
-    e.preventDefault()
-    const { data, error } = await client
+    e.preventDefault();
+
+    // Fetch medium priority posts
+    const { data: medPost, error } = await client
         .from('user-posts')
         .select("*")
-        .eq("Priority", "medium")
+        .eq("Priority", "medium");
 
     if (error) {
-        console.log(error, error.message);
+        console.log("Error fetching medium posts:", error.message);
+        return;
     }
 
-    contentDiv.innerHTML = ""
+    // Fetch users data
+    const { data: medUsers, error: medUserError } = await client
+        .from('users-data')
+        .select("*");
 
-    data.forEach(medium => {
-        console.log(medium);
-        contentDiv.innerHTML += ` 
-       <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
-        <ul class="list-group list-group-flush">
-        <li class="list-group-item fs-2">${medium.Title}</li>
-        <li class="list-group-item fs-4">${medium.Description}</li>
-        <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: orange; border: none; border-radius: 50%; "></div> ${medium.Priority}</li>
-        </ul>
-         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
-        </div>
-        </div>`
+    if (medUserError) {
+        console.log("Error fetching users:", medUserError.message);
+        return;
+    }
+
+    // Merge posts with user info
+    const mergedDataMed = medPost.map(mPost => {
+        const user = medUsers.find(u => u.email === mPost.email);
+        return {
+            ...mPost,
+            userName: user?.name,
+            userPic: user?.profile_pic
+        };
     });
 
-})
+    contentDiv.innerHTML = "";
 
+    mergedDataMed.forEach(med => {
+        const time = new Date(med.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+
+        contentDiv.innerHTML += `
+        <div class="border-info p-2 zoom-card" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px rgb(196, 249, 255)">
+            <!-- TOP PROFILE ROW -->
+            <div class="d-flex align-items-center gap-3 p-2">
+                <img src="${med.userPic}" alt="profile" style="width:50px; height:50px; border-radius:50%; box-shadow:0px 0px 2px gray; object-fit:cover;">
+                <div>
+                    <p class="m-0 fw-bold fs-5">${med.userName}</p>
+                    <p class="m-0 text-secondary" style="font-size: 14px;">${time}</p>
+                </div>
+            </div>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item fs-2">${med.Title}</li>
+                <li class="list-group-item fs-5">${med.Description}</li>
+                <li class="list-group-item gap-2 align-items-center d-flex">
+                    <div style="width: 20px; height: 20px; background-color: orange; border-radius: 50%;"></div> ${med.Priority}
+                </li>
+            </ul>
+
+            <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+               <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="editPost(${med.id},'${med.Title}','${med.Description}', '${med.Priority}')">
+            Edit 
+            <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i>
+        </button>
+
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="deletePost(${med.id})">
+            Delete 
+            <i class="fa-solid fa-trash fa-xs"></i>
+        </button>
+            </div>
+        </div>`;
+    });
+});
 
 // ========LOW WORK=========
 
-
-const lowBtn = document.getElementById("lowBtn")
+const lowBtn = document.getElementById("lowBtn");
 
 lowBtn && lowBtn.addEventListener("click", async (e) => {
-    e.preventDefault()
-    const { data, error } = await client
+    e.preventDefault();
+
+    // Fetch low priority posts
+    const { data: lowPost, error } = await client
         .from('user-posts')
         .select("*")
-        .eq("Priority", "low")
+        .eq("Priority", "low");
 
     if (error) {
-        console.log(error, error.message);
+        console.log("Error fetching low posts:", error.message);
+        return;
     }
 
-    contentDiv.innerHTML = ""
+    // Fetch users data
+    const { data: lowUsers, error: lowUserError } = await client
+        .from('users-data')
+        .select("*");
 
-    data.forEach(low => {
-        console.log(low);
-        contentDiv.innerHTML += ` 
-      <div class="border-info p-2" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px  rgb(196, 249, 255)">
-        <ul class="list-group list-group-flush">
-        <li class="list-group-item fs-2">${low.Title}</li>
-        
-        <li class="list-group-item fs-4">${low.Description}</li>
-        <li class="list-group-item gap-2 align-items-center d-flex"><div style="width: 20px; height: 20px; background-color: red; border: none; border-radius: 50%; "></div> ${low.Priority}</li>
-        </ul>
-         <div class="d-flex gap-2 justify-content-start ms-3 my-2">
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Edit <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i></button>
-        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 text-light fs-5 fw-bold px-3 py-1 rounded-5">Delete <i class="fa-solid fa-trash fa-xs"></i></button>
-        </div>
-        </div>`
+    if (lowUserError) {
+        console.log("Error fetching users:", lowUserError.message);
+        return;
+    }
+
+    // Merge posts with user info
+    const mergedDataLow = lowPost.map(lPost => {
+        const user = lowUsers.find(u => u.email === lPost.email);
+        return {
+            ...lPost,
+            userName: user?.name,
+            userPic: user?.profile_pic
+        };
     });
 
-})
+    contentDiv.innerHTML = "";
+
+    mergedDataLow.forEach(low => {
+        const time = new Date(low.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+
+        contentDiv.innerHTML += `
+        <div class="border-info p-2 zoom-card" style="width: 24rem; border:3px solid cyan; border-radius:30px; box-shadow: 0px 0px 15px rgb(196, 249, 255)">
+            <!-- TOP PROFILE ROW -->
+            <div class="d-flex align-items-center gap-3 p-2">
+                <img src="${low.userPic}" alt="profile" style="width:50px; height:50px; border-radius:50%; box-shadow:0px 0px 2px gray; object-fit:cover;">
+                <div>
+                    <p class="m-0 fw-bold fs-5">${low.userName}</p>
+                    <p class="m-0 text-secondary" style="font-size: 14px;">${time}</p>
+                </div>
+            </div>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item fs-2">${low.Title}</li>
+                <li class="list-group-item fs-5">${low.Description}</li>
+                <li class="list-group-item gap-2 align-items-center d-flex">
+                    <div style="width: 20px; height: 20px; background-color: red; border-radius: 50%;"></div> ${low.Priority}
+                </li>
+            </ul>
+
+            <div class="d-flex gap-2 justify-content-start ms-3 my-2">
+                <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="editPost(${low.id},'${low.Title}','${low.Description}', '${low.Priority}')">
+            Edit 
+            <i class="fa-solid fa-pen-to-square fa-sm mb-1" style="color: #ffffff;"></i>
+        </button>
+
+        <button class="border-0 bg-info d-flex justify-content-center align-items-center gap-2 
+                       text-light fs-5 fw-bold px-3 py-1 rounded-5"
+                onClick="deletePost(${low.id})">
+            Delete 
+            <i class="fa-solid fa-trash fa-xs"></i>
+        </button>
+            </div>
+        </div>`;
+    });
+});
 
 // =============EDIT POST FUNCTION=============
 
@@ -472,8 +626,6 @@ async function editPost(id, title, description, priority) {
 
 
 }
-
-
 
 // ===========DELETE POST FUNCTION=========
 
@@ -593,7 +745,7 @@ function editImg(id, image) {
 
 }
 
-update.addEventListener("change", async (e) => {
+update && update.addEventListener("change", async (e) => {
     console.log(e.target.files[0]);
 
     console.log(updateFileName, imgId);

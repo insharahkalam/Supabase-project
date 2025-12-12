@@ -113,7 +113,7 @@ body {
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     width: 100%;
-     height: 480px;
+    height: 480px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -314,28 +314,39 @@ input {
     }
 }
 
-  @media (max-width: 700px) {
+@media (max-width: 700px) {
+
     .titleInp,
     textarea {
-      width: 100% !important;
-      font-size: 14px;
+        width: 100% !important;
+        font-size: 14px;
     }
 
     .top button {
-      font-size: 15px !important;
-      padding: 6px 12px !important;
+        font-size: 15px !important;
+        padding: 6px 12px !important;
     }
 
     .bottom button {
-      width: 100%;
-      font-size: 16px !important;
-      padding: 10px 0 !important;
+        width: 100%;
+        font-size: 16px !important;
+        padding: 10px 0 !important;
     }
 
     .d-flex.flex-wrap label {
-      flex: 1 1 30%;
-      justify-content: flex-start;
-      font-size: 14px;
+        flex: 1 1 30%;
+        justify-content: flex-start;
+        font-size: 14px;
     }
-  }
+}
 
+
+.zoom-card {
+    transition: transform 0.3s ease;
+    /* smooth effect */
+}
+
+.zoom-card:hover {
+    transform: scale(1.03);
+    /* zoom in */
+}
