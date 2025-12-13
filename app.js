@@ -740,6 +740,8 @@ uploadBtn && uploadBtn.addEventListener("click", async (e) => {
 function editImg(id, image) {
     update.click()
     window.updateFileName = image.split("/profiles/")[1]
+    
+    
     window.imgId = id
 
 
@@ -759,7 +761,9 @@ update && update.addEventListener("change", async (e) => {
         console.log(data, "REMOVE successfully!");
 
         const newFile = e.target.files[0]
-        const newFileName = e.target.files[0].name
+        const newFileName = `${Date.now()}_${newFile.name}`
+
+        
         const { data: uploadData, error: uploadError } = await client
             .storage
             .from('profiles')
@@ -804,3 +808,4 @@ update && update.addEventListener("change", async (e) => {
 
 
 })
+    showImg();  
