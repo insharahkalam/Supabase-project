@@ -188,8 +188,11 @@ const showStatus = document.getElementsByName("showStatus")
 const title = document.getElementById("title")
 const description = document.getElementById("description")
 const submitBtn = document.getElementById("submitBtn")
+const imgFile = document.getElementById("imgFile")
 
 submitBtn && submitBtn.addEventListener("click", async () => {
+
+   
     let selectedInp = null
     for (let i = 0; i < showStatus.length; i++) {
         if (showStatus[i].checked) {
@@ -198,39 +201,75 @@ submitBtn && submitBtn.addEventListener("click", async () => {
             break;
         }
     }
-
-
-    if (!title.value || !description.value || !selectedInp) {
+ if (!title.value || !description.value || !selectedInp) {
         alert("Please Enter All Feilds!")
         return;
     }
-    const { data: getUserData, error: getUserError } = await client.auth.getUser()
-    console.log(getUserData);
 
-    const { error } = await client
-        .from('user-posts')
-        .insert({
-            Title: title.value,
-            Description: description.value,
-            Priority: selectedInp.value,
-            email: getUserData.user.email
-        })
 
+
+    let file = imgFile.files[0]
+
+    fileName = file.name
+    console.log(fileName);
+
+    const { data, error } = await client
+        .storage
+        .from('post_image')
+        .upload(fileName, file)
+       
     if (error) {
-        console.log(error, error.message);
+        console.log(error, "upload img errror");
     } else {
-        // alert("DATA INSERT SUCCESSFULLY!!")
-        Swal.fire({
-            title: "Post Added Successfully!",
-            icon: "success",
-            draggable: true,
-            timer: 2000
-        });
-        title.value = ""
-        description.value = ""
-        selectedInp.checked = false
-        window.location.href = "post.html"
+        console.log(data);
+        alert("img uploaded !")
     }
+
+    // const { data: getPublicUrlData } = client
+    //     .storage
+    //     .from('post_image')
+    //     .getPublicUrl(fileName)
+    // if (getPublicUrlData) {
+    //     console.log(getPublicUrlData, "successfull..........");
+    //     let imgUrl = getPublicUrlData.publicUrl
+
+    //     const { data: getUserData, error: getUserError } = await client.auth.getUser()
+    //     console.log(getUserData);
+
+    //     const { error: insertErr } = await client
+    //         .from('user-posts')
+    //         .insert({
+    //             Title: title.value,
+    //             Description: description.value,
+    //             Priority: selectedInp.value,
+    //             email: getUserData.user.email,
+    //             post_image: imgUrl
+    //         })
+
+    //     if (insertErr) {
+    //         console.log(error, insertErr.message);
+    //     } else {
+    //         // alert("DATA INSERT SUCCESSFULLY!!")
+    //         Swal.fire({
+    //             title: "Post Added Successfully!",
+    //             icon: "success",
+    //             draggable: true,
+    //             timer: 2000
+    //         });
+    //         title.value = ""
+    //         description.value = ""
+    //         selectedInp.checked = false
+    //         window.location.href = "post.html"
+    //     }
+
+
+    // }
+
+
+
+
+
+
 
 })
 
@@ -653,159 +692,3 @@ async function deletePost(id) {
 }
 
 
-
-// =============STORAGE=============
-
-const imgFile = document.getElementById("imgFile")
-const uploadBtn = document.getElementById("uploadBtn")
-const imgg = document.getElementById("imgg")
-const product_name = document.getElementById("product_name")
-const update = document.getElementById("update")
-
-
-async function showImg() {
-    imgg.innerHTML = ""
-    const { data: fetchData, error: fetchError } = await client
-        .from('storage')
-        .select("*")
-    if (fetchError) {
-        console.log("error in Fetching data", fetchError);
-    } else {
-        fetchData.forEach((post) => {
-            console.log(post);
-
-            imgg.innerHTML += `
-        
-        <div class="card" style="width: 18rem;">
-          <img src="${post.image}" class="card-img-top" alt="...">
-          <div class="card-body">
-           <p class="card-text">${post.name}</p>
-           <button type="button" onClick="editImg(${post.id} , '${post.image}')" class="btn btn-primary">Edit Product</button>
-         </div>
-        </div>
-        
-        `
-        })
-    }
-
-}
-window.showImg = showImg
-
-
-uploadBtn && uploadBtn.addEventListener("click", async (e) => {
-    e.preventDefault()
-    console.log(product_name.value);
-
-    let file = imgFile.files[0]
-
-    fileName = `${Date.now()}_${file.name}`
-    console.log(fileName);
-
-    const { data, error } = await client
-        .storage
-        .from('profiles')
-        .upload(fileName, file)
-    if (error) {
-        console.log(error, "upload img errror");
-    } else {
-        alert("img uploaded !")
-    }
-
-    const { data: getPublicUrlData } = client
-        .storage
-        .from('profiles')
-        .getPublicUrl(fileName)
-    if (getPublicUrlData) {
-        console.log(getPublicUrlData, "successfull..........");
-        let imgUrl = getPublicUrlData.publicUrl
-
-        const { error } = await client
-            .from('storage')
-            .insert({ name: product_name.value, image: imgUrl })
-        if (error) {
-            console.log("error in insert pic", error);
-        } else {
-            alert("succefully insert table..")
-
-            showImg();
-        }
-
-
-    }
-})
-
-
-
-
-function editImg(id, image) {
-    update.click()
-    window.updateFileName = image.split("/profiles/")[1]
-    
-    
-    window.imgId = id
-
-
-}
-
-update && update.addEventListener("change", async (e) => {
-    console.log(e.target.files[0]);
-
-    console.log(updateFileName, imgId);
-    const { data, error } = await client
-        .storage
-        .from('profiles')
-        .remove([updateFileName])
-    if (error) {
-        console.log(error, "error in removing file");
-    } else {
-        console.log(data, "REMOVE successfully!");
-
-        const newFile = e.target.files[0]
-        const newFileName = `${Date.now()}_${newFile.name}`
-
-        
-        const { data: uploadData, error: uploadError } = await client
-            .storage
-            .from('profiles')
-            .upload(newFileName, newFile, {
-                upsert: true
-            })
-        if (uploadError) {
-            console.log("error in uploading", uploadError);
-        } else {
-            console.log(uploadData);
-            let fileData = uploadData.fullPath.split("/")[1]
-            let newUrl = fileData
-            console.log(newUrl);
-
-            const { data: newData } = client
-                .storage
-                .from('profiles')
-                .getPublicUrl(newUrl)
-
-            if (newData) {
-                console.log(newData.publicUrl);
-                let newPublicUrl = newData.publicUrl
-
-                const { error } = await client
-                    .from('storage')
-                    .update({ image: newPublicUrl })
-                    .eq('id', imgId)
-
-                if (error) {
-                    console.log(error, "error in inserting again...");
-
-                }
-
-            }
-            showImg();
-
-        }
-
-
-    }
-
-
-
-})
-    showImg();  
