@@ -201,7 +201,7 @@ submitBtn && submitBtn.addEventListener("click", async () => {
             break;
         }
     }
- if (!title.value || !description.value || !selectedInp) {
+ if (!title.value || !description.value || !selectedInp || !imgFile.files[0]) {
         alert("Please Enter All Feilds!")
         return;
     }
@@ -210,7 +210,7 @@ submitBtn && submitBtn.addEventListener("click", async () => {
 
     let file = imgFile.files[0]
 
-    fileName = file.name
+    fileName =  `${Date.now()}_${file.name}` 
     console.log(fileName);
 
     const { data, error } = await client
@@ -225,45 +225,45 @@ submitBtn && submitBtn.addEventListener("click", async () => {
         alert("img uploaded !")
     }
 
-    // const { data: getPublicUrlData } = client
-    //     .storage
-    //     .from('post_image')
-    //     .getPublicUrl(fileName)
-    // if (getPublicUrlData) {
-    //     console.log(getPublicUrlData, "successfull..........");
-    //     let imgUrl = getPublicUrlData.publicUrl
+    const { data: getPublicUrlData } = client
+        .storage
+        .from('post_image')
+        .getPublicUrl(fileName)
+    if (getPublicUrlData) {
+        console.log(getPublicUrlData, "successfull..........");
+        let imgUrl = getPublicUrlData.publicUrl
 
-    //     const { data: getUserData, error: getUserError } = await client.auth.getUser()
-    //     console.log(getUserData);
+        const { data: getUserData, error: getUserError } = await client.auth.getUser()
+        console.log(getUserData);
 
-    //     const { error: insertErr } = await client
-    //         .from('user-posts')
-    //         .insert({
-    //             Title: title.value,
-    //             Description: description.value,
-    //             Priority: selectedInp.value,
-    //             email: getUserData.user.email,
-    //             post_image: imgUrl
-    //         })
+        const { error: insertErr } = await client
+            .from('user-posts')
+            .insert({
+                Title: title.value,
+                Description: description.value,
+                Priority: selectedInp.value,
+                email: getUserData.user.email,
+                post_image: imgUrl
+            })
 
-    //     if (insertErr) {
-    //         console.log(error, insertErr.message);
-    //     } else {
-    //         // alert("DATA INSERT SUCCESSFULLY!!")
-    //         Swal.fire({
-    //             title: "Post Added Successfully!",
-    //             icon: "success",
-    //             draggable: true,
-    //             timer: 2000
-    //         });
-    //         title.value = ""
-    //         description.value = ""
-    //         selectedInp.checked = false
-    //         window.location.href = "post.html"
-    //     }
+        if (insertErr) {
+            console.log(error, insertErr.message);
+        } else {
+            // alert("DATA INSERT SUCCESSFULLY!!")
+            Swal.fire({
+                title: "Post Added Successfully!",
+                icon: "success",
+                draggable: true,
+                timer: 2000
+            });
+            title.value = ""
+            description.value = ""
+            selectedInp.checked = false
+            window.location.href = "post.html"
+        }
 
 
-    // }
+    }
 
 
 
@@ -321,9 +321,9 @@ async function showAllPosts() {
                 hour12: true
             });
             contentDiv.innerHTML += ` 
-       <div class="border-info p-2 zoom-card" 
-     style="width: 24rem; border:3px solid cyan; border-radius:30px; 
-            box-shadow: 0px 0px 15px rgb(196, 249, 255)">
+<div class="border-info p-2 flex-col zoom-card" 
+     style="width: 35rem; height:860px; border:3px solid cyan; border-radius:30px; 
+            box-shadow: 0px 0px 15px rgb(196, 249, 255); overflow:hidden;">
 
     <!-- TOP PROFILE ROW -->
     <div class="d-flex align-items-center gap-3 p-2">
@@ -338,8 +338,15 @@ async function showAllPosts() {
     </div>
 
     <ul class="list-group list-group-flush">
-        <li class="list-group-item fs-2">${post.Title}</li>
+        
         <li class="list-group-item fs-5">${post.Description}</li>
+
+        <!-- IMAGE STYLING -->
+        <li class="list-group-item d-flex justify-content-center p-2">
+            <img src="${post.post_image}" 
+                 alt="post image"
+                 style="width:100%; height:600px; object-fit:cover; border-radius:20px; box-shadow:0px 4px 8px rgba(0,0,0,0.2);">
+        </li>
 
         <li class="list-group-item fs-5 d-flex align-items-center gap-2">
             <div style="width: 20px; height: 20px; background-color: ${color}; border-radius: 50%;"></div>
@@ -364,6 +371,7 @@ async function showAllPosts() {
     </div>
 
 </div>
+
 
         
         `
